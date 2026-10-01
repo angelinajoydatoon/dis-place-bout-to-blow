@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dis place bout to blowww - PH Campus Safety & Emergency Response System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              red: '#FF3B30',
+              yellow: '#FFCC00',
+              green: '#34C759',
+              blue: '#0A84FF',
+              dark: '#0B0F17',
+              panel: '#161F30'
+            }
+          },
+          animation: {
+            'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'radar': 'radar 4s linear infinite',
+          },
+          keyframes: {
+            radar: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar for tactical feeds */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #233148;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3a4d6f;
+    }
+    .grid-bg {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+<body class="h-full font-sans antialiased bg-slate-950 text-slate-100 flex flex-col overflow-x-hidden selection:bg-rose-500 selection:text-white">
+
+  <!-- TOP GLOBAL HEADER & VIEW SWITCHER -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand & Location Context -->
+      <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-900/40">
+            <i class="fa-solid font-bold text-lg text-white fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">dis place bout to blowww</span>
+              <span class="text-[10px] uppercase font-bold tracking-widest bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full">DepEd / PNP Alert</span>
+            </div>
+            <p class="text-xs text-slate-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-location-dot text-rose-500"></i>
+              <span id="current-location-text" class="font-medium">Iloilo National High School - Main Campus</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Mobile view switcher toggle trigger for small screens -->
+        <button id="view-toggle-mobile" onclick="toggleViewMode()" class="md:hidden bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 border border-slate-700 transition">
+          <i class="fa-solid fa-arrows-rotate text-amber-400"></i>
+          <span id="toggle-mobile-label">Switch View</span>
+        </button>
+      </div>
+
+      <!-- Quick Mode Switcher (Desktop) -->
+      <div class="hidden md:flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <button id="btn-mode-mobile" onclick="switchView('mobile')" class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-rose-600 text-white shadow-md">
+          <i class="fa-solid fa-mobile-screen"></i>
+          <span>Teacher / Student Mobile App</span>
+        </button>
+        <button id="btn-mode-command" onclick="switchView('command')" class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-tower-observation"></i>
+          <span>Command Center & Response Dashboard</span>
+        </button>
+        <button id="btn-mode-split" onclick="switchView('split')" class="flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-columns"></i>
+          <span>Dual Simulator</span>
+        </button>
+      </div>
+
+      <!-- Live Connectivity & Emergency Hotline -->
+      <div class="hidden lg:flex items-center space-x-4">
+        <div class="text-right">
+          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">PNP Emergency Gateway</p>
+          <p class="text-xs font-mono font-bold text-emerald-400 flex items-center justify-end gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            911 / PNP Hotline Connected
+          </p>
+        </div>
+        <div class="h-8 w-px bg-slate-800"></div>
+        <button onclick="triggerGlobalReset()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5" title="Reset Demo Simulation State">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Reset Demo</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid gap-6">
+
+    <!-- SIMULATOR VIEWPORT -->
+    <div id="views-container" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- ========================================================================= -->
+      <!-- LEFT MODULE: TEACHER / STUDENT MOBILE INTERFACE (Smartphone Frame)       -->
+      <!-- ========================================================================= -->
+      <section id="view-mobile" class="lg:col-span-4 transition-all duration-300 mx-auto w-full max-w-md">
+        <div class="bg-slate-900 border-4 border-slate-800 rounded-[40px] p-4 shadow-2xl relative overflow-hidden ring-1 ring-slate-700">
+          
+          <!-- Smartphone Notch & Speaker -->
+          <div class="w-32 h-4 bg-slate-950 rounded-b-2xl mx-auto mb-3 flex items-center justify-center space-x-2">
+            <div class="w-8 h-1 bg-slate-800 rounded-full"></div>
+            <div class="w-2 h-2 bg-slate-900 rounded-full border border-slate-800"></div>
+          </div>
+
+          <!-- Mobile App Screen Header -->
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 px-1">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">dis place bout to blowww v2.4</span>
+              <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-building-columns text-amber-400"></i>
+                <span id="mobile-room-display">Bldg A - Room 204</span>
+              </h2>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span id="badge-network" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 4G/LTE
+              </span>
+            </div>
+          </div>
+
+          <!-- Mobile Content Container -->
+          <div class="space-y-4 max-h-[720px] overflow-y-auto pr-1">
+
+            <!-- Geofence & Offline Mode Bar -->
+            <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-semibold text-slate-200">Campus Geofence Active</p>
+                  <p class="text-[10px] text-slate-400">GPS Precision: ~3.2m</p>
+                </div>
+              </div>
+              
+              <!-- Offline SMS Fallback Toggle -->
+              <label class="relative inline-flex items-center cursor-pointer" title="Simulate Cellular Data Loss (Force SMS Mode)">
+                <input type="checkbox" id="toggle-offline-mode" onchange="toggleOfflineMode()" class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600"></div>
+              </label>
+            </div>
+
+            <!-- Offline Banner (Hidden by default) -->
+            <div id="offline-banner" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 text-xs text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i>
+              <span><strong>Offline SMS Fallback Active:</strong> Alerts encoded via structured SMS to PNP/DRRMO Gateway.</span>
+            </div>
+
+            <!-- SILENT PANIC BUTTON SECTION -->
+            <div class="bg-gradient-to-b from-rose-950/30 to-slate-950/80 border border-rose-900/40 rounded-2xl p-5 text-center relative overflow-hidden shadow-inner">
+              <div class="text-center mb-3">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-rose-400">Silent Threat Trigger</span>
+                <p class="text-[11px] text-slate-400">Pressing dispatches high-priority alert without sounding audio locally.</p>
+              </div>
+
+              <!-- Main Panic Button -->
+              <div class="relative flex items-center justify-center my-2">
+                <!-- Outer Pulse Ring when holding/activating -->
+                <div id="panic-ring" class="absolute w-36 h-36 rounded-full border-2 border-rose-500/30 transition-all duration-300"></div>
+                
+                <button id="btn-panic" onclick="initiatePanicSequence()" class="relative z-10 w-32 h-32 rounded-full bg-gradient-to-br from-rose-500 via-rose-600 to-red-800 text-white font-extrabold shadow-2xl hover:scale-105 active:scale-95 transition duration-150 border-4 border-rose-400/40 flex flex-col items-center justify-center space-y-1 group">
+                  <i class="fa-solid fa-bell-exclamation text-3xl group-hover:animate-bounce"></i>
+                  <span class="text-xs uppercase font-black tracking-wider">SILENT PANIC</span>
+                  <span class="text-[9px] font-normal opacity-80">Hold / Tap Once</span>
+                </button>
+              </div>
+
+              <!-- Countdown Modal Overlay for accidental cancels -->
+              <div id="panic-countdown-card" class="hidden mt-3 bg-slate-900/90 border border-rose-500/50 rounded-xl p-3 text-center">
+                <p class="text-xs text-rose-400 font-bold mb-1">Broadcasting Silent Distress Signal in:</p>
+                <div class="text-3xl font-mono font-black text-rose-500 my-1" id="countdown-timer">3</div>
+                <button onclick="cancelPanicSequence()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-1.5 rounded-lg border border-slate-700 font-semibold transition">
+                  <i class="fa-solid fa-xmark mr-1"></i> Cancel False Alarm
+                </button>
+              </div>
+            </div>
+
+            <!-- QUICK CLASSROOM STATUS BROADCAST -->
+            <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <i class="fa-solid fa-bullhorn text-amber-400"></i> Classroom Status Broadcast
+                </span>
+                <span class="text-[10px] text-slate-400">Select Room Below</span>
+              </div>
+
+              <!-- Room Selector Input -->
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-1">Building Zone</label>
+                  <select id="select-building" class="w-full bg-slate-900 border border-slate-700 rounded-lg text-xs px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-rose-500">
+                    <option value="Bldg A">Bldg A (Senior High)</option>
+                    <option value="Bldg B">Bldg B (Junior High)</option>
+                    <option value="Admin">Admin Building</option>
+                    <option value="Gym">Gymnasium / Grounds</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-1">Room / Section</label>
+                  <select id="select-room" class="w-full bg-slate-900 border border-slate-700 rounded-lg text-xs px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-rose-500">
+                    <option value="Room 204">Room 204</option>
+                    <option value="Room 101">Room 101</option>
+                    <option value="Room 102">Room 102</option>
+                    <option value="Room 201">Room 201</option>
+                    <option value="Science Lab">Science Lab</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Status Action Buttons -->
+              <div class="grid grid-cols-3 gap-2 pt-1">
+                <button onclick="broadcastStatus('safe')" class="bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-600/40 text-emerald-300 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 transition active:scale-95">
+                  <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+                  <span class="text-[11px] font-bold">Mark Safe</span>
+                  <span class="text-[9px] text-emerald-400/70">All Secured</span>
+                </button>
+
+                <button onclick="broadcastStatus('medical')" class="bg-amber-950/50 hover:bg-amber-900/60 border border-amber-600/40 text-amber-300 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 transition active:scale-95">
+                  <i class="fa-solid fa-kit-medical text-amber-400 text-lg"></i>
+                  <span class="text-[11px] font-bold">Medical / Help</span>
+                  <span class="text-[9px] text-amber-400/70">Casualties</span>
+                </button>
+
+                <button onclick="broadcastStatus('threat')" class="bg-rose-950/50 hover:bg-rose-900/60 border border-rose-600/40 text-rose-300 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 transition active:scale-95">
+                  <i class="fa-solid fa-person-rifle text-rose-400 text-lg"></i>
+                  <span class="text-[11px] font-bold">Intruder Here</span>
+                  <span class="text-[9px] text-rose-400/70">Active Shooter</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ANONYMOUS TIP & THREAT REPORTING MODULE -->
+            <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-secret text-rose-400"></i> Confidential Threat Tip Line
+                </span>
+                <span class="text-[10px] text-slate-400">RA 10173 Encrypted</span>
+              </div>
+
+              <div class="space-y-2">
+                <input type="text" id="tip-subject" placeholder="Subject (e.g., Suspicious social media post / firearm seen)" class="w-full bg-slate-900 border border-slate-800 rounded-lg text-xs p-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500">
+                <textarea id="tip-details" rows="2" placeholder="Provide details (Location, physical description, vehicle, weapon type)..." class="w-full bg-slate-900 border border-slate-800 rounded-lg text-xs p-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500"></textarea>
+                
+                <div class="flex items-center justify-between pt-1">
+                  <label class="text-[10px] text-slate-400 cursor-pointer flex items-center gap-1 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800">
+                    <i class="fa-solid fa-paperclip text-slate-400"></i> Attach Photo / Media
+                    <input type="file" class="hidden" onchange="simulatedUpload(this)">
+                  </label>
+                  <span id="upload-status" class="text-[10px] text-emerald-400 hidden"><i class="fa-solid fa-check"></i> Attached</span>
+
+                  <button onclick="submitAnonymousTip()" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                    <i class="fa-solid fa-paper-plane"></i> Send Tip
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- EMERGENCY PROTOCOL QUICK CARD ("RUN, HIDE, FIGHT") -->
+            <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-2">
+              <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-book-bookmark text-sky-400"></i> PNP / DepEd Active Threat Protocol
+              </span>
+              <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] pt-1">
+                <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                  <p class="font-bold text-amber-400">1. RUN</p>
+                  <p class="text-slate-400 text-[9px] mt-0.5">Evacuate if safe route available.</p>
+                </div>
+                <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                  <p class="font-bold text-rose-400">2. HIDE</p>
+                  <p class="text-slate-400 text-[9px] mt-0.5">Lock doors, lights off, silence phone.</p>
+                </div>
+                <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                  <p class="font-bold text-red-500">3. FIGHT</p>
+                  <p class="text-slate-400 text-[9px] mt-0.5">Last resort. Disarm with improvised items.</p>
+                </div>
+              </div>
+            </div>
+
+          </div> <!-- End Mobile Content -->
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- RIGHT MODULE: COMMAND CENTER & RESPONDER DASHBOARD (PNP / ADMIN)         -->
+      <!-- ========================================================================= -->
+      <section id="view-command" class="lg:col-span-8 transition-all duration-300 space-y-6">
+
+        <!-- COMMAND STATS METRICS BAR -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center space-x-3 shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
+              <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Active Threat Level</p>
+              <h3 id="stat-threat-level" class="text-lg font-bold text-emerald-400">NORMAL / GUARDED</h3>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center space-x-3 shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <i class="fa-solid fa-users-viewfinder text-xl"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Rooms Accounted Safe</p>
+              <h3 id="stat-safe-rooms" class="text-lg font-mono font-extrabold text-white">12 / 16</h3>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center space-x-3 shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+              <i class="fa-solid fa-truck-medical text-xl"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Medical Requests</p>
+              <h3 id="stat-medical-count" class="text-lg font-mono font-extrabold text-amber-400">1</h3>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center space-x-3 shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+              <i class="fa-solid fa-shield-halved text-xl"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">PNP Tactical ETA</p>
+              <h3 id="stat-pnp-eta" class="text-lg font-mono font-bold text-sky-400">4 MINS (En Route)</h3>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- INTERACTIVE CAMPUS MAP & COMMAND GRID -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl relative">
+          
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 mb-4 border-b border-slate-800 gap-2">
+            <div>
+              <h3 class="font-bold text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot text-rose-500"></i>
+                Tactical Campus Grid Floorplan
+              </h3>
+              <p class="text-xs text-slate-400">Real-time status synced directly from teacher hand-held triggers.</p>
+            </div>
+
+            <!-- Legend & Layer Selectors -->
+            <div class="flex items-center space-x-3 text-[10px] font-semibold">
+              <span class="flex items-center gap-1 text-slate-300"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Safe</span>
+              <span class="flex items-center gap-1 text-slate-300"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Medical</span>
+              <span class="flex items-center gap-1 text-slate-300"><span class="w-2.5 h-2.5 rounded bg-rose-600"></span> Active Threat</span>
+              <span class="flex items-center gap-1 text-slate-300"><span class="w-2.5 h-2.5 rounded bg-sky-500"></span> Responders</span>
+            </div>
+          </div>
+
+          <!-- MAP CONTAINER GRID -->
+          <div class="relative bg-slate-950 border border-slate-800 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-4 gap-3 grid-bg min-h-[300px]">
+            
+            <!-- Room 101 -->
+            <div id="grid-room-101" onclick="selectRoomFromMap('Room 101')" class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3 cursor-pointer hover:border-emerald-400 transition flex flex-col justify-between h-28 relative overflow-hidden group">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-200">Room 101</span>
+                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">SAFE</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Grade 7 - Diamond<br>Teacher: Ms. Santos</p>
+              <div class="text-[9px] font-mono text-emerald-400 flex items-center justify-between">
+                <span>32/32 Safe</span>
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+
+            <!-- Room 102 -->
+            <div id="grid-room-102" onclick="selectRoomFromMap('Room 102')" class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3 cursor-pointer hover:border-emerald-400 transition flex flex-col justify-between h-28 relative overflow-hidden">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-200">Room 102</span>
+                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">SAFE</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Grade 7 - Ruby<br>Teacher: Mr. Cruz</p>
+              <div class="text-[9px] font-mono text-emerald-400 flex items-center justify-between">
+                <span>28/28 Safe</span>
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+
+            <!-- Room 204 (Dynamic Alert Subject) -->
+            <div id="grid-room-204" onclick="selectRoomFromMap('Room 204')" class="bg-amber-950/40 border border-amber-500/50 rounded-xl p-3 cursor-pointer hover:border-amber-400 transition flex flex-col justify-between h-28 relative overflow-hidden">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-200">Room 204 (SHS)</span>
+                <span id="grid-status-204" class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">HELP NEEDED</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Grade 11 - STEM A<br>Teacher: Mrs. Reyes</p>
+              <div class="text-[9px] font-mono text-amber-400 flex items-center justify-between">
+                <span id="grid-count-204">1 Injured (Asthma)</span>
+                <i class="fa-solid fa-kit-medical"></i>
+              </div>
+            </div>
+
+            <!-- Science Lab -->
+            <div id="grid-room-sci" onclick="selectRoomFromMap('Science Lab')" class="bg-slate-900 border border-slate-800 rounded-xl p-3 cursor-pointer hover:border-slate-700 transition flex flex-col justify-between h-28 relative overflow-hidden">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-200">Science Lab</span>
+                <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono">UNACCOUNTED</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Bldg B 2nd Flr<br>Lab Tech: Mr. Garcia</p>
+              <div class="text-[9px] font-mono text-slate-500 flex items-center justify-between">
+                <span>Status Unknown</span>
+                <i class="fa-solid fa-circle-question"></i>
+              </div>
+            </div>
+
+            <!-- Admin Office & PNP Staging Zone -->
+            <div class="bg-sky-950/30 border border-sky-500/40 rounded-xl p-3 flex flex-col justify-between h-28 col-span-2">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-sky-200">Admin Bldg / Gate 1 Staging</span>
+                <span class="text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-mono">COMMAND CENTER</span>
+              </div>
+              <p class="text-[10px] text-slate-400">PNP Mobile Patrol #204 Positioned.<br>Campus Security Officers Guarding Exit.</p>
+              <div class="text-[9px] font-mono text-sky-400 flex items-center justify-between">
+                <span>Responders On-Site</span>
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+            </div>
+
+            <!-- Gymnasium -->
+            <div id="grid-room-gym" onclick="selectRoomFromMap('Gymnasium')" class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3 cursor-pointer hover:border-emerald-400 transition flex flex-col justify-between h-28 col-span-2">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-xs text-slate-200">Main Gymnasium / Evacuation Point</span>
+                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">SECURED</span>
+              </div>
+              <p class="text-[10px] text-slate-400">PE Classes Evacuated. Perimeter Locked from Inside.</p>
+              <div class="text-[9px] font-mono text-emerald-400 flex items-center justify-between">
+                <span>140 Students Gathered</span>
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- HARDWARE & DISPATCH CONTROLS BAR -->
+          <div class="mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+              <button onclick="triggerCampusLockdown()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-lg shadow-rose-900/30 flex items-center gap-2 transition active:scale-95">
+                <i class="fa-solid fa-lock text-sm"></i>
+                <span>TRIGGER CAMPUS LOCKDOWN SIREN</span>
+              </button>
+
+              <button onclick="dispatchPNP()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-sky-900/30 flex items-center gap-2 transition active:scale-95">
+                <i class="fa-solid fa-person-military-pointing text-sm"></i>
+                <span>DISPATCH PNP SWAT / SWAT TEAM</span>
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button onclick="broadcastPushAnnouncement()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-bullhorn text-amber-400"></i>
+                <span>Broadcast Alert SMS/Push</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- LIVE INCIDENT AUDIT FEED & ANONYMOUS TIPS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Live Telemetry Incident Feed -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col h-[340px]">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-rose-500"></i>
+                Live Incident & Distress Feed
+              </h4>
+              <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">STREAMING</span>
+            </div>
+
+            <div id="incident-feed-log" class="flex-1 overflow-y-auto space-y-2.5 pr-1 font-mono text-xs">
+              
+              <!-- Feed Item 1 -->
+              <div class="p-2.5 rounded-xl bg-slate-950 border-l-4 border-amber-500 border-y border-r border-slate-800">
+                <div class="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+                  <span class="font-bold text-amber-400"><i class="fa-solid fa-kit-medical"></i> MEDICAL DISTRESS</span>
+                  <span id="timestamp-initial">10:42:15 AM</span>
+                </div>
+                <p class="text-slate-200 font-sans text-xs">Room 204 (Bldg A): Asthma attack reported during lockdown drill.</p>
+              </div>
+
+              <!-- Feed Item 2 -->
+              <div class="p-2.5 rounded-xl bg-slate-950 border-l-4 border-emerald-500 border-y border-r border-slate-800">
+                <div class="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+                  <span class="font-bold text-emerald-400"><i class="fa-solid fa-circle-check"></i> STATUS CHECK</span>
+                  <span>10:40:02 AM</span>
+                </div>
+                <p class="text-slate-200 font-sans text-xs">Gymnasium Evacuation Zone: All 140 students accounted for.</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Anonymous Intelligence & Threat Tip Inbox -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col h-[340px]">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-user-secret text-amber-400"></i>
+                Anonymous Threat Tip Triage
+              </h4>
+              <span class="text-[10px] font-mono text-slate-400">Encrypted Queue</span>
+            </div>
+
+            <div id="tip-feed-log" class="flex-1 overflow-y-auto space-y-2.5 pr-1 text-xs">
+              
+              <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <div class="flex justify-between items-start text-[10px] text-slate-400 mb-1">
+                  <span class="font-bold text-rose-400 uppercase">Flagged Post / Social Media</span>
+                  <span>10:12 AM</span>
+                </div>
+                <p class="font-semibold text-slate-200">Suspicious threat comment on FB Group.</p>
+                <p class="text-slate-400 text-[11px] mt-1">"Student uploaded firearm picture claiming intent near Gate 2."</p>
+                <div class="mt-2 flex items-center justify-between text-[10px]">
+                  <span class="text-amber-400 font-mono">Triage Level: High</span>
+                  <button onclick="alert('Forwarding report packet directly to PNP Cybercrime Division.')" class="text-sky-400 hover:underline">Forward to PNP</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL / NOTIFICATION OVERLAY SIMULATION -->
+  <div id="broadcast-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-bullhorn text-amber-400"></i> Broadcast Emergency Alert
+        </h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <p class="text-xs text-slate-300">This action dispatches push alerts to all teacher/student mobile apps and triggers automated SMS via Philippine Telco Gateways.</p>
+
+      <div>
+        <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Announcement Preset</label>
+        <select id="modal-preset-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl text-xs p-2.5 text-slate-200 focus:outline-none focus:border-rose-500">
+          <option>LOCKDOWN: Active Threat reported on campus. Lock classrooms immediately.</option>
+          <option>SHELTER IN PLACE: Severe Weather / Local Incident nearby.</option>
+          <option>ALL CLEAR: Threat neutralized by PNP. Normal operations resuming.</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2">
+        <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Cancel</button>
+        <button onclick="executeBroadcast()" class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white hover:bg-rose-500 shadow-lg shadow-rose-900/40">Transmit Global Alert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION JAVASCRIPT LOGIC -->
+  <script>
+    // Core State Variables
+    let panicTimer = null;
+    let countdownValue = 3;
+    let isOfflineMode = false;
+    let currentView = 'split'; // 'mobile', 'command', or 'split'
+
+    // Initialize timestamps on load
+    document.addEventListener("DOMContentLoaded", () => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const tsElem = document.getElementById('timestamp-initial');
+      if (tsElem) tsElem.innerText = timeStr;
+    });
+
+    // View Switcher Functionality
+    function switchView(mode) {
+      currentView = mode;
+      const mobileSec = document.getElementById('view-mobile');
+      const commandSec = document.getElementById('view-command');
+      
+      const btnMobile = document.getElementById('btn-mode-mobile');
+      const btnCommand = document.getElementById('btn-mode-command');
+      const btnSplit = document.getElementById('btn-mode-split');
+
+      // Reset button active styles
+      [btnMobile, btnCommand, btnSplit].forEach(btn => {
+        if (btn) {
+          btn.classList.remove('bg-rose-600', 'text-white', 'shadow-md');
+          btn.classList.add('text-slate-400');
+        }
+      });
+
+      if (mode === 'mobile') {
+        mobileSec.classList.remove('hidden', 'lg:col-span-4');
+        mobileSec.classList.add('lg:col-span-12', 'max-w-md');
+        commandSec.classList.add('hidden');
+        btnMobile.classList.add('bg-rose-600', 'text-white', 'shadow-md');
+      } else if (mode === 'command') {
+        mobileSec.classList.add('hidden');
+        commandSec.classList.remove('hidden', 'lg:col-span-8');
+        commandSec.classList.add('lg:col-span-12');
+        btnCommand.classList.add('bg-rose-600', 'text-white', 'shadow-md');
+      } else { // split view
+        mobileSec.classList.remove('hidden', 'lg:col-span-12');
+        mobileSec.classList.add('lg:col-span-4');
+        commandSec.classList.remove('hidden', 'lg:col-span-12');
+        commandSec.classList.add('lg:col-span-8');
+        btnSplit.classList.add('bg-rose-600', 'text-white', 'shadow-md');
+      }
+    }
+
+    function toggleViewMode() {
+      if (currentView === 'mobile') {
+        switchView('command');
+      } else {
+        switchView('mobile');
+      }
+    }
+
+    // Toggle Offline SMS Fallback Mode
+    function toggleOfflineMode() {
+      const checkbox = document.getElementById('toggle-offline-mode');
+      const banner = document.getElementById('offline-banner');
+      const networkBadge = document.getElementById('badge-network');
+      
+      isOfflineMode = checkbox.checked;
+      
+      if (isOfflineMode) {
+        banner.classList.remove('hidden');
+        networkBadge.className = "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono flex items-center gap-1";
+        networkBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> SMS Gateway`;
+        logIncident("NETWORK ALERT", "Cellular data lost. Mobile client switched to SMS Direct Protocol.", "amber");
+      } else {
+        banner.classList.add('hidden');
+        networkBadge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono flex items-center gap-1";
+        networkBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 4G/LTE`;
+        logIncident("NETWORK ALERT", "4G/LTE Connectivity restored.", "emerald");
+      }
+    }
+
+    // Silent Panic Button Sequence
+    function initiatePanicSequence() {
+      const card = document.getElementById('panic-countdown-card');
+      const ring = document.getElementById('panic-ring');
+      card.classList.remove('hidden');
+      ring.classList.add('animate-ping', 'border-rose-500');
+
+      countdownValue = 3;
+      document.getElementById('countdown-timer').innerText = countdownValue;
+
+      clearInterval(panicTimer);
+      panicTimer = setInterval(() => {
+        countdownValue--;
+        document.getElementById('countdown-timer').innerText = countdownValue;
+        if (countdownValue <= 0) {
+          clearInterval(panicTimer);
+          executePanicAlert();
+        }
+      }, 1000);
+    }
+
+    function cancelPanicSequence() {
+      clearInterval(panicTimer);
+      document.getElementById('panic-countdown-card').classList.add('hidden');
+      const ring = document.getElementById('panic-ring');
+      ring.classList.remove('animate-ping', 'border-rose-500');
+    }
+
+    function executePanicAlert() {
+      document.getElementById('panic-countdown-card').classList.add('hidden');
+      const room = document.getElementById('select-room').value;
+      const bldg = document.getElementById('select-building').value;
+
+      // Update Command Center Stat Bar
+      const threatStat = document.getElementById('stat-threat-level');
+      threatStat.innerText = "CRITICAL / ACTIVE SHOOTER";
+      threatStat.className = "text-lg font-bold text-rose-500 animate-pulse";
+
+      // Update Room Grid Map Visual
+      const room204Grid = document.getElementById('grid-room-204');
+      const status204 = document.getElementById('grid-status-204');
+      const count204 = document.getElementById('grid-count-204');
+
+      if (room204Grid) {
+        room204Grid.className = "bg-rose-950/80 border-2 border-rose-500 rounded-xl p-3 cursor-pointer animate-pulse transition flex flex-col justify-between h-28 relative overflow-hidden shadow-rose-900/50 shadow-xl";
+        status204.className = "text-[9px] bg-rose-600 text-white font-black px-1.5 py-0.5 rounded font-mono";
+        status204.innerText = "ACTIVE THREAT";
+        count204.innerText = "DISTRESS TRIGGERED";
+        count204.className = "text-rose-300 font-bold";
+      }
+
+      // Log into Incident Audit Feed
+      logIncident("SILENT PANIC ALERT", `distress trigger registered at ${bldg} - ${room}. Silent dispatch sent to PNP 911 dispatch.`, "rose");
+
+      // Auto trigger lockdown alert audio/visual prompt
+      setTimeout(() => {
+        alert(`🚨 EMERGENCY LOCKDOWN TRIGGERED!\n\nLocation: ${bldg} - ${room}\n\nAll campus units, lock doors and take immediate cover! PNP Emergency SWAT team notified.`);
+      }, 300);
+    }
+
+    // Broadcast Room Status Updates
+    function broadcastStatus(type) {
+      const room = document.getElementById('select-room').value;
+      const bldg = document.getElementById('select-building').value;
+
+      if (type === 'safe') {
+        logIncident("STATUS: SAFE", `${bldg} - ${room} marked ALL SECURED & SAFE.`, "emerald");
+      } else if (type === 'medical') {
+        logIncident("STATUS: MEDICAL HELP", `${bldg} - ${room} requested urgent medical assistance.`, "amber");
+        const medStat = document.getElementById('stat-medical-count');
+        medStat.innerText = parseInt(medStat.innerText || 0) + 1;
+      } else if (type === 'threat') {
+        logIncident("STATUS: INTRUDER SIGHTED", `Intruder / Threat spotted near ${bldg} - ${room}!`, "rose");
+        executePanicAlert();
+      }
+    }
+
+    // Anonymous Tip Form Simulation
+    function simulatedUpload(input) {
+      if (input.files && input.files[0]) {
+        document.getElementById('upload-status').classList.remove('hidden');
+      }
+    }
+
+    function submitAnonymousTip() {
+      const subj = document.getElementById('tip-subject').value;
+      const details = document.getElementById('tip-details').value;
+
+      if (!subj && !details) {
+        alert("Please enter a subject or tip details before sending.");
+        return;
+      }
+
+      const logContainer = document.getElementById('tip-feed-log');
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newTip = document.createElement('div');
+      newTip.className = "p-3 rounded-xl bg-slate-950 border border-slate-800 animate-in fade-in duration-200";
+      newTip.innerHTML = `
+        <div class="flex justify-between items-start text-[10px] text-slate-400 mb-1">
+          <span class="font-bold text-rose-400 uppercase">${subj || 'Anonymous Tip'}</span>
+          <span>${timeStr}</span>
+        </div>
+        <p class="font-semibold text-slate-200 text-xs">${details}</p>
+        <div class="mt-2 flex items-center justify-between text-[10px]">
+          <span class="text-amber-400 font-mono">Status: Submitted / Encrypted</span>
+          <button onclick="alert('Tip acknowledged by security officer.')" class="text-sky-400 hover:underline">Acknowledge</button>
+        </div>
+      `;
+
+      logContainer.prepend(newTip);
+
+      // Clear Inputs
+      document.getElementById('tip-subject').value = '';
+      document.getElementById('tip-details').value = '';
+      document.getElementById('upload-status').classList.add('hidden');
+
+      alert(" Confidential threat tip transmitted securely to school security & PNP triage unit.");
+    }
+
+    // Logging helper
+    function logIncident(title, message, colorClass) {
+      const feed = document.getElementById('incident-feed-log');
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      let borderStyle = "border-slate-500";
+      let textStyle = "text-slate-300";
+      
+      if (colorClass === 'rose') {
+        borderStyle = "border-rose-500";
+        textStyle = "text-rose-400";
+      } else if (colorClass === 'amber') {
+        borderStyle = "border-amber-500";
+        textStyle = "text-amber-400";
+      } else if (colorClass === 'emerald') {
+        borderStyle = "border-emerald-500";
+        textStyle = "text-emerald-400";
+      }
+
+      const item = document.createElement('div');
+      item.className = `p-2.5 rounded-xl bg-slate-950 border-l-4 ${borderStyle} border-y border-r border-slate-800 animate-in slide-in-from-top-2 duration-150`;
+      item.innerHTML = `
+        <div class="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+          <span class="font-bold ${textStyle}"><i class="fa-solid fa-triangle-exclamation"></i> ${title}</span>
+          <span>${timeStr}</span>
+        </div>
+        <p class="text-slate-200 font-sans text-xs">${message}</p>
+      `;
+
+      feed.prepend(item);
+    }
+
+    // Dispatch Controls
+    function triggerCampusLockdown() {
+      logIncident("SIREN ACTIVATED", "Campus-wide automated lockdown sirens & strobes activated.", "rose");
+      alert("🚨 LOCKDOWN SIREN ACTIVATED!\n\nAutomated door locks engaged where applicable. Emergency broadcast sent to all registered devices.");
+    }
+
+    function dispatchPNP() {
+      logIncident("TACTICAL DISPATCH", "PNP Tactical Response Unit dispatched to INHS Gate 1.", "emerald");
+      document.getElementById('stat-pnp-eta').innerText = "1 MIN (ARRIVING)";
+      alert("🚔 PNP Tactical Response Team notified with live room coordinates!");
+    }
+
+    function broadcastPushAnnouncement() {
+      document.getElementById('broadcast-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('broadcast-modal').classList.add('hidden');
+    }
+
+    function executeBroadcast() {
+      const preset = document.getElementById('modal-preset-select').value;
+      logIncident("GLOBAL BROADCAST", preset, "amber");
+      closeModal();
+      alert(" Broadcast alert transmitted via SMS and Mobile Push Notification!");
+    }
+
+    function selectRoomFromMap(roomName) {
+      alert(`Inspecting detailed telemetry for ${roomName}.\n\nAll historical logs, video feed thumbnails (if available), and headcount rosters are synchronized.`);
+    }
+
+    function triggerGlobalReset() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
